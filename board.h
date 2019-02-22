@@ -56,8 +56,6 @@ private:
     bool areZeroCells();
     bool areSameNeighbourCells();
 
-    void pause(int);
-
     bool isStarted;
     int score;
     int maxCell;

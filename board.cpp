@@ -1,5 +1,4 @@
 #include "board.h"
-#include <QMutex>
 
 Board::Board(QWidget *parent, int s) :  QFrame(parent), size(s)
 {
@@ -19,13 +18,17 @@ void Board::clearBoard() {
 
 void Board::drawSquare(QPainter &painter, int x, int y, Cell cell) {
 
-    int indent = DEFAULT_CELL_SIZE / 2 - 5;
-    painter.fillRect(x, y, DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE, Qt::GlobalColor::black);
+    painter.fillRect(x, y, DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE, QColor(224, 224, 224));
     painter.fillRect(x+2, y+2, DEFAULT_CELL_SIZE-4, DEFAULT_CELL_SIZE-4, cell.getCellColor());
-    QFont font;
-    font.setPixelSize(30);
-    painter.setFont(font);
-    painter.drawText(x + indent, y + indent + 10, QString::number(cell.getValue()));
+    if(cell.getValue() != 0) {
+        QFont font;
+        painter.setPen(BASE_FONT_COLOR);
+        font.setPixelSize(30);
+        painter.setFont(font);
+        int yIndent = DEFAULT_CELL_SIZE / 2 + 7;
+        int xIndent = DEFAULT_CELL_SIZE / 2 - 7 - (cell.getIntColor() - 1) / 3 * 6;
+        painter.drawText(x + xIndent, y + yIndent, QString::number(cell.getValue()));
+    }
 }
 
 void Board::clearNullCellsUp()  {
@@ -201,20 +204,20 @@ void Board::paintEvent(QPaintEvent *event) {
 
 
     if(winFlag) {
-        painter.fillRect(rect, QBrush(Qt::white));
+        painter.fillRect(rect, QBrush(WIN_BACKGROUND_COLOR));
         QFont font;
         font.setPixelSize(32);
-        painter.setPen(Qt::blue);
+        painter.setPen(WIN_FONT_COLOR);
         painter.setFont(font);
         painter.drawText(rect, Qt::AlignCenter, "You win");
         return;
     }
 
     if(loseFlag) {
-        painter.fillRect(rect, QBrush(Qt::black));
+        painter.fillRect(rect, QBrush(LOSE_BACKGROUND_COLOR));
         QFont font;
         font.setPixelSize(32);
-        painter.setPen(Qt::red);
+        painter.setPen(LOSE_FONT_COLOR);
         painter.setFont(font);
         painter.drawText(rect, Qt::AlignCenter, "You lose");
         return;
@@ -285,11 +288,4 @@ bool Board::areSameNeighbourCells() {
 void Board::renewMaxCell(int v) {
     maxCell = v > maxCell ? v : maxCell;
     score += v;
-}
-
-void Board::pause(int t) {
-    QMutex mut;
-    mut.lock();
-    mut.tryLock(t);
-    mut.unlock();
 }

@@ -1,23 +1,23 @@
 #include "cell.h"
 
-static const Qt::GlobalColor initColors[] = {
-    Qt::GlobalColor::white,
-    Qt::GlobalColor::lightGray,
-    Qt::GlobalColor::yellow,
-    Qt::GlobalColor::darkYellow,
-    Qt::GlobalColor::magenta,
-    Qt::GlobalColor::red,
-    Qt::GlobalColor::darkMagenta,
-    Qt::GlobalColor::green,
-    Qt::GlobalColor::darkGreen,
-    Qt::GlobalColor::cyan,
-    Qt::GlobalColor::darkCyan,
-    Qt::GlobalColor::blue,
-    Qt::GlobalColor::darkBlue
+static const QColor initColors[] = {
+    QColor(255, 255, 255),
+    QColor(255, 255, 204),
+    QColor(255, 242, 204),
+    QColor(255, 230, 204),
+    QColor(255, 217, 204),
+    QColor(255, 204, 204),
+    QColor(255, 204, 217),
+    QColor(255, 204, 230),
+    QColor(255, 204, 242),
+    QColor(242, 204, 255),
+    QColor(230, 204, 255),
+    QColor(217, 204, 255),
+    QColor(204, 204, 255)
 
 };
 
-const Qt::GlobalColor* Cell::colors = initColors;
+const QColor* Cell::colors = initColors;
 
 Cell::Cell(int v, int cn) : value(v), colorNumber(cn)
 {
@@ -38,6 +38,6 @@ void Cell::setCell(int newValue, int newColorNumber) {
 }
 
 
-Qt::GlobalColor Cell::getCellColor() {
+QColor Cell::getCellColor() {
     return colors[colorNumber];
 }

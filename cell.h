@@ -6,7 +6,7 @@
 
 class Cell
 {
-    static const Qt::GlobalColor* colors;
+    static const QColor* colors;
     int value;
     int colorNumber;
 
@@ -17,7 +17,7 @@ public:
     void setCell(int, int);
     int getValue() {return value;}
     int getIntColor() {return colorNumber;}
-    Qt::GlobalColor getCellColor();
+    QColor getCellColor();
 
     void increment();
 };
