@@ -14,6 +14,23 @@ void Board::clearBoard() {
             cells[i][j].setCell(0, 0);
         }
     }
+    std::stack<std::vector<std::vector<Cell>>>().swap(states);
+    std::stack<int>().swap(scores);
+}
+
+void Board::start()
+{
+    isStarted = true;
+    score = 0;
+    maxCell = 2;
+    winFlag = false;
+    loseFlag = false;
+    clearBoard();
+    generateNewCellValue();
+    states.push(cells);
+    scores.push(0);
+    emit scoreChanged(score);
+    update();
 }
 
 void Board::drawSquare(QPainter &painter, int x, int y, Cell cell) {
@@ -88,53 +105,59 @@ void Board::clearNullCellsRight()  {
 }
 
 void Board::moveUp() {
+    renewStacks();
     clearNullCellsUp();
     for(int i = 0; i < size; ++i) {
         for(int j = 0; j < size-1; ++j) {
             if(cells[i][j].getValue() != 0 && cells[i][j].getValue() == cells[i][j+1].getValue()) {
                 cells[i][j].increment();
-                cells[i][j+1].setCell(0, 0);
-                renewMaxCell(cells[i][j].getValue());
+                cells[i][j+1].setCell(0, 0); 
+                renewMaxCellAndScore(cells[i][j].getValue());
                 emit scoreChanged(score);
                 ++j;
             }
         }
     }
     clearNullCellsUp();
+    generateNewCellValue();
     update();
 }
 
 void Board::moveDown() {
+    renewStacks();
     clearNullCellsDown();
     for(int i = 0; i < size; ++i) {
         for(int j = size - 1; j >= 0; --j) {
             if(cells[i][j].getValue() == cells[i][j+1].getValue() && cells[i][j].getValue() != 0) {
                 cells[i][j].increment();
                 cells[i][j+1].setCell(0, 0);
-                renewMaxCell(cells[i][j].getValue());
+                renewMaxCellAndScore(cells[i][j].getValue());
                 emit scoreChanged(score);
                 --j;
             }
         }
     }
     clearNullCellsDown();
+    generateNewCellValue();
     update();
 }
 
 void Board::moveLeft() {
+    renewStacks();
     clearNullCellsLeft();
     for(int i = 0; i < size; ++i) {
         for(int j = 0; j < size-1; ++j) {
             if(cells[j][i].getValue() == cells[j+1][i].getValue() && cells[j][i].getValue() != 0) {
                 cells[j][i].increment();
                 cells[j+1][i].setCell(0, 0);
-                renewMaxCell(cells[j][i].getValue());
+                renewMaxCellAndScore(cells[j][i].getValue());
                 emit scoreChanged(score);
                 ++j;
             }
         }
     }
     clearNullCellsLeft();
+    generateNewCellValue();
     update();
 }
 
@@ -145,13 +168,14 @@ void Board::moveRight() {
             if(cells[j][i].getValue() == cells[j-1][i].getValue() && cells[j][i].getValue() != 0) {
                 cells[j-1][i].increment();
                 cells[j][i].setCell(0, 0);
-                renewMaxCell(cells[j-1][i].getValue());
+                renewMaxCellAndScore(cells[j-1][i].getValue());
                 emit scoreChanged(score);
                 --j;
             }
         }
     }
     clearNullCellsRight();
+    generateNewCellValue();
     update();
 }
 
@@ -179,16 +203,15 @@ void Board::keyPressEvent(QKeyEvent *event) {
             case Qt::Key_Down:
                 moveDown();
                 break;
+            case Qt::Key_Space:
+                stepBack();
+                break;
             default:
                 QFrame::keyPressEvent(event);
         }
 
-
-            generateNewCellValue();
-
-            if(maxCell == 2048) {
+            if(maxCell == WIN_VALUE) {
                 winFlag = true;
-
             }
 
            if(!areZeroCells() && !areSameNeighbourCells()) {
@@ -209,7 +232,7 @@ void Board::paintEvent(QPaintEvent *event) {
         font.setPixelSize(32);
         painter.setPen(WIN_FONT_COLOR);
         painter.setFont(font);
-        painter.drawText(rect, Qt::AlignCenter, "You win");
+        painter.drawText(rect, Qt::AlignCenter, "You win!\nPress any key");
         return;
     }
 
@@ -219,7 +242,7 @@ void Board::paintEvent(QPaintEvent *event) {
         font.setPixelSize(32);
         painter.setPen(LOSE_FONT_COLOR);
         painter.setFont(font);
-        painter.drawText(rect, Qt::AlignCenter, "You lose");
+        painter.drawText(rect, Qt::AlignCenter, "You lose.\nPress any key");
         return;
     }
 
@@ -232,18 +255,7 @@ void Board::paintEvent(QPaintEvent *event) {
     }
 }
 
-void Board::start()
-{
-    isStarted = true;
-    score = 0;
-    maxCell = 2;
-    winFlag = false;
-    loseFlag = false;
-    emit scoreChanged(0);
-    clearBoard();
-    generateNewCellValue();
-    update();
-}
+
 
 void Board::generateNewCellValue() {
     if(areZeroCells()) {
@@ -285,7 +297,23 @@ bool Board::areSameNeighbourCells() {
     return false;
 }
 
-void Board::renewMaxCell(int v) {
+void Board::renewMaxCellAndScore(int v) {
     maxCell = v > maxCell ? v : maxCell;
     score += v;
+}
+
+void Board::stepBack() {
+    if(!states.empty() && !scores.empty()) {
+        cells = states.top();
+        states.pop();
+        score = scores.top();
+        scores.pop();
+        emit scoreChanged(score);
+        update();
+    }
+}
+
+void Board::renewStacks() {
+    states.push(cells);
+    scores.push(score);
 }

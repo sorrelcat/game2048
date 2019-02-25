@@ -17,7 +17,6 @@ MainWindow::MainWindow()
     connect(startButton, &QPushButton::clicked, board, &Board::start);
     connect(board, &Board::scoreChanged, scoreLcd, QOverload<int>::of(&QLCDNumber::display));
 
-
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(board, 0, 0, 2, 2);
     layout->addWidget(scoreLcd, 1, 1);

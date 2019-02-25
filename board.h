@@ -11,7 +11,7 @@
 #include <QPaintEvent>
 #include <QRect>
 #include <vector>
-
+#include <stack>
 
 class Board : public QFrame
 {
@@ -34,6 +34,8 @@ private:
 
     int size;
     std::vector<std::vector<Cell>> cells;
+    std::stack<std::vector<std::vector<Cell>>> states;
+    std::stack<int> scores;
 
     void drawSquare(QPainter &painter, int x, int y, Cell cell);
     void clearBoard();
@@ -51,10 +53,13 @@ private:
     void moveRight();
 
     void generateNewCellValue();
-    void renewMaxCell(int v);
+    void renewMaxCellAndScore(int v);
 
     bool areZeroCells();
     bool areSameNeighbourCells();
+
+    void stepBack();
+    void renewStacks();
 
     bool isStarted;
     int score;
